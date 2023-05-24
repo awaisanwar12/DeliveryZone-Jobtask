@@ -5,7 +5,7 @@ import Layout from "./Layout";
 
 function Task() {
   const [data, setData] = useState([]);
-  
+
   const [isModalOpen, setIsModalOpen] = useState("");
 
   const [form] = Form.useForm();
@@ -31,14 +31,14 @@ function Task() {
     form.setFieldsValue(record);
     setIsModalOpen(true);
   };
-  
+
   const updateDataInLocalStorage = (updatedData) => {
     setData(updatedData);
     localStorage.setItem("entry", JSON.stringify(updatedData));
   };
- 
+
   const onFinish = (values) => {
-    const { key, API, Description, Category } = values;
+    const { key, API, Description, Category ,Link} = values;
     const updatedData = data.map((record) => {
       if (record.key === key) {
         return {
@@ -46,6 +46,7 @@ function Task() {
           API,
           Description,
           Category,
+          Link
         };
       }
       return record;
@@ -62,25 +63,31 @@ function Task() {
       title: "API",
       dataIndex: "API",
       key: "API",
+      sorter: (a, b) => a.API.localeCompare(b.API),
       render: (text) => <div className="cell">{text}</div>,
     },
     {
       title: "Description",
       dataIndex: "Description",
       key: "Description",
+      sorter: (a, b) => a.Description.localeCompare(b.Description),
       render: (text) => <div className="cell">{text}</div>,
     },
     {
       title: "Category",
       dataIndex: "Category",
       key: "Category",
+
+      sorter: (a, b) => a.Category.localeCompare(b.Category),
+
       render: (text) => <div className="cell">{text}</div>,
     },
     {
-      title: "Auth",
-      dataIndex: "Auth",
-      key: "Auth",
-      render: (text) => <div className="cell">{text ? "Yes" : "No"}</div>,
+      title: "Link",
+      dataIndex: "Link",
+      key: "Link",
+      sorter: (a, b) => a.Link.localeCompare(b.Link),
+      render: (text) => <div className="cell">{text}</div>,
     },
     {
       title: "Action",
@@ -101,13 +108,12 @@ function Task() {
           dataSource={data}
           columns={columns}
           className="custom-table"
-          pagination={false}
+          pagination={true}
         />
 
         <Modal
-          title="Basic Modal"
+          title="Entries Info"
           open={isModalOpen}
-          
           onCancel={handleCancel}
           footer={null}
         >
@@ -131,6 +137,9 @@ function Task() {
             </Form.Item>
 
             <Form.Item label="Category" name="Category">
+              <Input />
+            </Form.Item>
+            <Form.Item label="Link" name="Link">
               <Input />
             </Form.Item>
 

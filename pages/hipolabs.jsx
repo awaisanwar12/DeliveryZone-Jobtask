@@ -42,14 +42,14 @@ setIsModalOpen(true);
   };
   
   const onFinish = (values) => {
-    const { key, country, name, domains } = values
+    const { key, country, name } = values
     const updatedData = data.map((record) => {
       if (record.key === key) {
         return {
           ...record,
           country,
           name,
-          domains,
+          ['state-province']: values['state-province']
         };
       }
       return record;
@@ -66,19 +66,25 @@ setIsModalOpen(true);
       title: "Country",
       dataIndex: "country",
       key: "country",
+            sorter: (a, b) => a.country.localeCompare(b.country),
+
       render: (text) => <div className="cell">{text}</div>,
     },
     {
       title: "Name",
       dataIndex: "name",
       key: "name",
+            sorter: (a, b) => a.country.localeCompare(b.country),
+
       render: (text) => <div className="cell">{text}</div>,
     },
     {
-      title: "Domains",
-      dataIndex: "domains",
-      key: "domains",
-      render: (text) => <div className="cell">{text.toString()}</div>,
+      title: "State-Province",
+      dataIndex: "state-province",
+      key: "state-province",
+            
+sorter :(a,b) =>  (a['state-province'] || '').localeCompare(b['state-province'] || ''),
+      render: (text) => <div className="cell">{text}</div>,
     },
 
     {
@@ -92,7 +98,8 @@ setIsModalOpen(true);
       ),
     },
   ];
-
+  
+    
   return (
     <Layout>
       <div>
@@ -100,11 +107,12 @@ setIsModalOpen(true);
           dataSource={data}
           columns={columns}
           className="custom-table"
-          pagination={false}
+          pagination={true}
+        
         />
 
         <Modal
-          title="Basic Modal"
+          title="Hipolabs Info"
           open={isModalOpen}
           footer={null}
           
@@ -129,7 +137,7 @@ setIsModalOpen(true);
               <Input />
             </Form.Item>
 
-            <Form.Item label="domains" name="domains">
+            <Form.Item label="state-province" name="state-province">
               <Input />
             </Form.Item>
 
