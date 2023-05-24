@@ -1,0 +1,16 @@
+/* components/Layout.module.css */
+.nav {
+    height: 80px;
+    background-color: #333;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .nav a {
+    color: white;
+    text-decoration: none;
+    margin: 0 10px;
+  }
+  

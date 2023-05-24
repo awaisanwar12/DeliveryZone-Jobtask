@@ -1,15 +1,14 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Space, Table, Tag, Button, Modal, Input } from "antd";
+import { Space, Table, Tag, Button, Modal, Input, Form } from "antd";
+import Layout from "./Layout";
 
 function Task2() {
   const [data, setData] = useState([]);
-  const [country, setCountry] = useState("");
-  const [name, setName] = useState("");
-  const [domains, setDomains] = useState("");
+ 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [key, setKey] = useState("");
-
+  
+  const [form] = Form.useForm();
   const fetchInfo = () => {
     return axios
       .get("http://universities.hipolabs.com/search?country=pakistan")
@@ -31,37 +30,37 @@ function Task2() {
       fetchInfo();
     }
   }, []);
-  const handleUpdate = (record) => {
-    setKey(record.key);
-    setCountry(record.country);
-    setName(record.name);
-    setDomains(record.domains);
-    setIsModalOpen(true);
-  };
+  const handleUpdate =(record)=>{
+form.setFieldsValue(record)
+setIsModalOpen(true);
+
+  }
+ 
   const updateDataInLocalStorage = (updatedData) => {
     setData(updatedData);
     localStorage.setItem("university", JSON.stringify(updatedData));
   };
-  const handleModalOk = () => {
+  
+  const onFinish = (values) => {
+    const { key, country, name, domains } = values
     const updatedData = data.map((record) => {
       if (record.key === key) {
         return {
           ...record,
-          country: country,
-          name: name,
-          domains: domains,
+          country,
+          name,
+          domains,
         };
       }
       return record;
     });
-    console.log(updatedData[0])
     updateDataInLocalStorage(updatedData);
     setIsModalOpen(false);
   };
 
-  const handleCancel=()=>{
-    setIsModalOpen(false)
-  }
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
   const columns = [
     {
       title: "Country",
@@ -81,7 +80,7 @@ function Task2() {
       key: "domains",
       render: (text) => <div className="cell">{text.toString()}</div>,
     },
-    
+
     {
       title: "Action",
       key: "action",
@@ -93,56 +92,57 @@ function Task2() {
       ),
     },
   ];
-console.log(data[0])
-  return (
-    <div>
-      <Table
-        dataSource={data}
-        columns={columns}
-        
-        className="custom-table"
-        pagination={false}
-      />
 
-      <Modal
-        title="Basic Modal"
-        open={isModalOpen}
-        onOk={handleModalOk}
-        onCancel={handleCancel}
-      >
-        <label>
-          Country:
-          <Input
-            style={{ width: "20%" }}
-            type="text"
-            value={country}
-            onChange={(e) => setCountry(e.target.value)}
-          />
-        </label>
-        <br />
-        <label>
-          Name:
-          <Input
-            style={{ width: "20%" }}
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-        </label>
-        <br />
-        <label>
-          Domains:
-          <Input
-            style={{ width: "20%" }}
-            placeholder="domain"
-            type="text"
-            value={domains}
-            onChange={(e) => setDomains(e.target.value)}
-          />
-        </label>
-        <br />
-      </Modal>
-    </div>
+  return (
+    <Layout>
+      <div>
+        <Table
+          dataSource={data}
+          columns={columns}
+          className="custom-table"
+          pagination={false}
+        />
+
+        <Modal
+          title="Basic Modal"
+          open={isModalOpen}
+          footer={null}
+          
+          onCancel={handleCancel}
+        >
+          <Form
+            form={form}
+            name="basic"
+            labelCol={{ span: 8 }}
+            wrapperCol={{ span: 16 }}
+            style={{ maxWidth: 600 }}
+            initialValues={{ remember: true }}
+            onFinish={onFinish}
+            autoComplete="off"
+          >
+            <Form.Item hidden={true} label="key" name="key"></Form.Item>
+            <Form.Item label="country" name="country">
+              <Input />
+            </Form.Item>
+
+            <Form.Item label="name" name="name">
+              <Input />
+            </Form.Item>
+
+            <Form.Item label="domains" name="domains">
+              <Input />
+            </Form.Item>
+
+            <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+              <Button type="primary" htmlType="submit">
+                Submit
+              </Button>
+            </Form.Item>
+          </Form>
+          <br />
+        </Modal>
+      </div>
+    </Layout>
   );
 }
 export default Task2;

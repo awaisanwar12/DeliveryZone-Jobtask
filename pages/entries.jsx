@@ -1,22 +1,19 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Space, Table, Tag, Button,Modal,Input } from "antd";
+import { Space, Table, Tag, Button, Modal, Input, Form } from "antd";
+import Layout from "./Layout";
 
 function Task() {
   const [data, setData] = useState([]);
-  const [api, setAPI] = useState("");
-  const [description, setDescription] = useState("");
-  const [category, setCategory] = useState("");
-  const [isModalOpen,setIsModalOpen]= useState("");
-const [key,setKey]= useState("");
-
   
+  const [isModalOpen, setIsModalOpen] = useState("");
+
+  const [form] = Form.useForm();
   const fetchInfo = () => {
     return axios.get("https://api.publicapis.org/entries").then((res) => {
-      
       const newData = res.data.entries.map((d, index) => {
-        return {...d, key: index}
-      })
+        return { ...d, key: index };
+      });
       setData(newData);
       localStorage.setItem("entry", JSON.stringify(newData));
     });
@@ -30,26 +27,25 @@ const [key,setKey]= useState("");
       fetchInfo();
     }
   }, []);
-   const handleUpdate = (record) => {
-setKey(record.key)
-    setAPI(record.API);
-    setDescription(record.Description);
-    setCategory(record.Category);
+  const handleUpdate = (record) => {
+    form.setFieldsValue(record);
     setIsModalOpen(true);
   };
-   const updateDataInLocalStorage = (updatedData) => {
+  
+  const updateDataInLocalStorage = (updatedData) => {
     setData(updatedData);
-    localStorage.setItem('entry', JSON.stringify(updatedData));
+    localStorage.setItem("entry", JSON.stringify(updatedData));
   };
-   const handleModalOk = () => {
+ 
+  const onFinish = (values) => {
+    const { key, API, Description, Category } = values;
     const updatedData = data.map((record) => {
-      
       if (record.key === key) {
         return {
           ...record,
-          API: api,
-          Description: description,
-          Category: category,
+          API,
+          Description,
+          Category,
         };
       }
       return record;
@@ -58,9 +54,9 @@ setKey(record.key)
     setIsModalOpen(false);
   };
 
-  // const generateRowKey = (record) => {
-  //   return record.API; // Use the "API" field as the row key
-  // };
+  function handleCancel() {
+    setIsModalOpen(false);
+  }
   const columns = [
     {
       title: "API",
@@ -90,7 +86,7 @@ setKey(record.key)
       title: "Action",
       key: "action",
       width: "10%",
-      render: (_,record) => (
+      render: (_, record) => (
         <Space>
           <Button onClick={() => handleUpdate(record)}>Update</Button>
         </Space>
@@ -99,54 +95,55 @@ setKey(record.key)
   ];
 
   return (
-    <div>
-      <Table
-        dataSource={data}
-        columns={columns}
-        // rowKey={generateRowKey}
-        className="custom-table"
-        pagination={false}
-      />
-      
-      <Modal
-        title="Basic Modal"
-        open={isModalOpen}
-        onOk={handleModalOk}
-        // onCancel={handleCancel}
-      >
-        <label>
-          API:
-          <Input
-            style={{ width: "20%" }}
-            type="text"
-            value={api}
-            onChange={(e) => setAPI(e.target.value)}
-          />
-        </label>
-        <br />
-        <label>
-          Description:
-          <Input
-            style={{ width: "20%" }}
-            type="text"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-          />
-        </label>
-        <br />
-        <label>
-          Catagory:
-          <Input
-            style={{ width: "20%" }}
-            placeholder="category"
-            type="text"
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-          />
-        </label>
-        <br />
-      </Modal>
-    </div>
+    <Layout>
+      <div>
+        <Table
+          dataSource={data}
+          columns={columns}
+          className="custom-table"
+          pagination={false}
+        />
+
+        <Modal
+          title="Basic Modal"
+          open={isModalOpen}
+          
+          onCancel={handleCancel}
+          footer={null}
+        >
+          <Form
+            form={form}
+            name="basic"
+            labelCol={{ span: 8 }}
+            wrapperCol={{ span: 16 }}
+            style={{ maxWidth: 600 }}
+            initialValues={{ remember: true }}
+            onFinish={onFinish}
+            autoComplete="off"
+          >
+            <Form.Item hidden={true} label="key" name="key"></Form.Item>
+            <Form.Item label="API" name="API">
+              <Input />
+            </Form.Item>
+
+            <Form.Item label="Description" name="Description">
+              <Input />
+            </Form.Item>
+
+            <Form.Item label="Category" name="Category">
+              <Input />
+            </Form.Item>
+
+            <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+              <Button type="primary" htmlType="submit">
+                Submit
+              </Button>
+            </Form.Item>
+          </Form>
+          <br />
+        </Modal>
+      </div>
+    </Layout>
   );
 }
 export default Task;
